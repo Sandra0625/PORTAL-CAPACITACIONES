@@ -9,7 +9,7 @@ function Register() {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      await api.post('/auth/register', form);
+      await api.post('/usuarios/registro', form);
       alert('Usuario registrado con éxito');
     } catch (err) {
       alert('Error al registrar usuario');
