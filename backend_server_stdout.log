@@ -1,0 +1,22 @@
+[dotenv@17.2.3] injecting env (3) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[SERVER] Conectando a MongoDB...
+[SERVER] Cargando middleware de autenticación...
+[SERVER] Middleware cargado
+[SERVER] Importando rutas...
+[SERVER] - authRouter cargado
+[SERVER] - cursosRouter cargado
+[SERVER] - inscripcionesRouter cargado
+[SERVER] - reportesRouter cargado
+[SERVER] - usuariosRouter cargado
+[SERVER] Todas las rutas importadas exitosamente
+[SERVER] Configurando rutas públicas...
+[SERVER] Rutas públicas configuradas
+[SERVER] Configurando rutas protegidas...
+[SERVER] Rutas protegidas configuradas
+[SERVER] Inicializando servidor HTTP...
+[SERVER] Intentando escuchar en puerto 4000
+[SERVER] Configuración completada
+[SERVER] ✓ Servidor escuchando en http://0.0.0.0:4000
+[SERVER] Servidor listo para recibir solicitudes
+[SERVER] El servidor está verdaderamente escuchando
+[SERVER] MongoDB conectado
