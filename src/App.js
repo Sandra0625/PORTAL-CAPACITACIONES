@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import UsuariosModule from './modules/usuarios';
 import DashboardModule from './modules/dashboard';
+import Portal from './components/Portal';
 
 function App() {
   const [usuario, setUsuario] = useState(null);
@@ -34,7 +35,7 @@ function App() {
       ) : (
         <>
           <button onClick={handleLogout}>Cerrar sesión</button>
-          <DashboardModule usuario={usuario} />
+          <Portal usuario={usuario} setUsuario={setUsuario} />
         </>
       )}
     </div>
