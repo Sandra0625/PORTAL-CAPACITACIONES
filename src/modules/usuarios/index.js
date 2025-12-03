@@ -10,7 +10,7 @@ function UsuariosModule({ onLogin }) {
       <h2>Usuarios</h2>
       {mostrarRegistro ? (
         <>
-          <Register />
+          <Register onLogin={onLogin} />
           <button onClick={() => setMostrarRegistro(false)}>Ya tengo cuenta</button>
         </>
       ) : (

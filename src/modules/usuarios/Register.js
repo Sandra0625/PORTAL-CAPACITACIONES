@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from '../../api';
 
-function Register() {
+function Register({ onLogin }) {
   const [form, setForm] = useState({ nombre: '', email: '', contraseña: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -21,7 +21,16 @@ function Register() {
 
     try {
       const response = await api.post('/usuarios/registro', form);
-      setSuccess(response.data.mensaje);
+      // Si el registro fue exitoso, intentar login automático
+      setSuccess(response.data.mensaje || 'Registro exitoso');
+      try {
+        const loginRes = await api.post('/auth/login', { email: form.email, contraseña: form.contraseña });
+        localStorage.setItem('token', loginRes.data.token);
+        if (onLogin) onLogin(loginRes.data.usuario);
+      } catch (loginErr) {
+        // si falla el login automático, dejar el formulario limpio y mostrar mensaje
+        setError('Registro OK, pero login automático falló. Por favor inicia sesión.');
+      }
       setForm({ nombre: '', email: '', contraseña: '' });
     } catch (err) {
       setError(err.response?.data?.mensaje || 'Error al registrar usuario');
