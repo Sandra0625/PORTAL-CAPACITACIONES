@@ -8,10 +8,9 @@ const UsuarioSchema = new mongoose.Schema({
   rol: { type: String, enum: ['admin', 'estudiante'], default: 'estudiante' }
 });
 
-UsuarioSchema.pre('save', async function(next) {
-  if (!this.isModified('contraseña')) return next();
+UsuarioSchema.pre('save', async function() {
+  if (!this.isModified('contraseña')) return;
   this.contraseña = await bcrypt.hash(this.contraseña, 10);
-  next();
 });
 
 module.exports = mongoose.model('Usuario', UsuarioSchema);

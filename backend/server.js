@@ -3,41 +3,104 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+process.on('uncaughtException', (err) => {
+  console.error('[UNCAUGHT EXCEPTION]', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[UNHANDLED REJECTION]', reason);
+});
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 // Conexión a MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB conectado"))
-  .catch(err => console.error("Error de conexión:", err));
+console.log('[SERVER] Conectando a MongoDB...');
+const mongoConnection = mongoose.connect(process.env.MONGO_URI);
+
+mongoConnection
+  .then(() => {
+    console.log("[SERVER] MongoDB conectado");
+  })
+  .catch(err => {
+    console.error("[SERVER] Error de conexión:", err.message);
+    console.error(err);
+  });
 
 // Middleware de autenticación
+console.log('[SERVER] Cargando middleware de autenticación...');
 const verificarToken = require('./middleware/auth');
+console.log('[SERVER] Middleware cargado');
 
 // Importar rutas
-const authRouter = require('./routes/auth');
-const cursosRouter = require('./routes/cursos');
-const inscripcionesRouter = require('./routes/inscripciones');
-const reportesRouter = require('./routes/reportes');
-const usuariosRouter = require('./routes/usuarios'); // nueva ruta
+console.log('[SERVER] Importando rutas...');
+try {
+  const authRouter = require('./routes/auth');
+  console.log('[SERVER] - authRouter cargado');
+  
+  const cursosRouter = require('./routes/cursos');
+  console.log('[SERVER] - cursosRouter cargado');
+  
+  const inscripcionesRouter = require('./routes/inscripciones');
+  console.log('[SERVER] - inscripcionesRouter cargado');
+  
+  const reportesRouter = require('./routes/reportes');
+  console.log('[SERVER] - reportesRouter cargado');
+  
+  const usuariosRouter = require('./routes/usuarios');
+  console.log('[SERVER] - usuariosRouter cargado');
 
-// Rutas públicas
-app.use('/api/auth', authRouter);
-app.use('/api/usuarios', usuariosRouter); // registro de usuarios
+  console.log('[SERVER] Todas las rutas importadas exitosamente');
 
-// Rutas protegidas
-app.use('/api/cursos', verificarToken, cursosRouter);
-app.use('/api/inscripciones', verificarToken, inscripcionesRouter);
-app.use('/api/reportes', verificarToken, reportesRouter);
+  // Rutas públicas
+  console.log('[SERVER] Configurando rutas públicas...');
+  app.use('/api/auth', authRouter);
+  app.use('/api/usuarios', usuariosRouter);
+  console.log('[SERVER] Rutas públicas configuradas');
 
-// Ruta de prueba
-app.get("/", (req, res) => {
-  res.send("Backend funcionando");
-});
+  // Rutas protegidas
+  console.log('[SERVER] Configurando rutas protegidas...');
+  app.use('/api/cursos', verificarToken, cursosRouter);
+  app.use('/api/inscripciones', verificarToken, inscripcionesRouter);
+  app.use('/api/reportes', verificarToken, reportesRouter);
+  console.log('[SERVER] Rutas protegidas configuradas');
 
-// Servidor
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
+  // Ruta de prueba
+  app.get("/", (req, res) => {
+    res.send("Backend funcionando");
+  });
+
+  // Manejo de errores global
+  app.use((err, req, res, next) => {
+    console.error('[ERROR]', err);
+    res.status(500).json({ error: err.message });
+  });
+
+  // Servidor
+  console.log('[SERVER] Inicializando servidor HTTP...');
+  const PORT = process.env.PORT || 4000;
+  
+  console.log('[SERVER] Intentando escuchar en puerto', PORT);
+  
+  const server = app.listen(PORT, '127.0.0.1', () => {
+    console.log(`[SERVER] ✓ Servidor escuchando en http://127.0.0.1:${PORT}`);
+    console.log(`[SERVER] Servidor listo para recibir solicitudes`);
+  });
+
+  server.on('error', (err) => {
+    console.error('[SERVER ERROR]', err);
+  });
+
+  server.on('listening', () => {
+    console.log('[SERVER] El servidor está verdaderamente escuchando');
+  });
+
+  // Mantener el proceso vivo
+  console.log('[SERVER] Configuración completada');
+} catch (err) {
+  console.error('[FATAL ERROR]', err);
+  process.exit(1);
+}
 
 
