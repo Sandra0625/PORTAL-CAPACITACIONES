@@ -83,8 +83,9 @@ try {
   
   console.log('[SERVER] Intentando escuchar en puerto', PORT);
   
-  const server = app.listen(PORT, '127.0.0.1', () => {
-    console.log(`[SERVER] ✓ Servidor escuchando en http://127.0.0.1:${PORT}`);
+  const HOST = process.env.HOST || '0.0.0.0';
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`[SERVER] ✓ Servidor escuchando en http://${HOST}:${PORT}`);
     console.log(`[SERVER] Servidor listo para recibir solicitudes`);
   });
 
