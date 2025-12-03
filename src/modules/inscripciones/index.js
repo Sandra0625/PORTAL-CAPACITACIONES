@@ -13,12 +13,15 @@ function InscripcionesModule({ usuario }) {
   }, []);
 
   const agregarInscripcion = nueva => setInscripciones([...inscripciones, nueva]);
+  const onUpdate = updated => {
+    setInscripciones(inscripciones.map(i => (i._id === updated._id ? updated : i)));
+  };
 
   return (
     <div>
       <h2>Inscripciones</h2>
       <InscripcionForm usuario={usuario} onInscripcionCreada={agregarInscripcion} />
-      <InscripcionList inscripciones={inscripciones} />
+      <InscripcionList inscripciones={inscripciones} onUpdate={onUpdate} />
     </div>
   );
 }
