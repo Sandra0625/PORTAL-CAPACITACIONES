@@ -14,6 +14,7 @@ process.on('unhandledRejection', (reason, promise) => {
 const app = express();
 app.use(cors());
 app.use(express.json());
+const path = require('path');
 
 // Conexión a MongoDB Atlas
 console.log('[SERVER] Conectando a MongoDB...');
@@ -58,6 +59,10 @@ try {
   app.use('/api/auth', authRouter);
   app.use('/api/usuarios', usuariosRouter);
   console.log('[SERVER] Rutas públicas configuradas');
+
+  // Servir certificados generados
+  const certsDir = path.join(__dirname, 'certificates');
+  app.use('/certificates', express.static(certsDir));
 
   // Rutas protegidas
   console.log('[SERVER] Configurando rutas protegidas...');

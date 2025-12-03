@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Inscripcion = require('../models/Inscripcion');
 const verificarToken = require('../middleware/auth');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
 
 // Crear inscripción
 router.post('/', verificarToken, async (req, res) => {
@@ -31,6 +34,39 @@ router.put('/:id/progreso', verificarToken, async (req, res) => {
     if (insc.progreso >= 100 && !insc.completado) {
       insc.completado = true;
       insc.fechaCompletado = new Date();
+
+      // Generar certificado PDF y guardar URL
+      try {
+        const certsDir = path.join(__dirname, '..', 'certificates');
+        if (!fs.existsSync(certsDir)) fs.mkdirSync(certsDir, { recursive: true });
+
+        const filename = `cert_${insc._id}.pdf`;
+        const filepath = path.join(certsDir, filename);
+
+        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+        const stream = fs.createWriteStream(filepath);
+        doc.pipe(stream);
+
+        doc.fontSize(20).text('Certificado de Finalización', { align: 'center' });
+        doc.moveDown(2);
+        doc.fontSize(14).text(`Se certifica que ${insc.usuario.nombre}`, { align: 'center' });
+        doc.moveDown(1);
+        doc.fontSize(12).text(`ha completado el curso: ${insc.curso.titulo}`, { align: 'center' });
+        doc.moveDown(2);
+        doc.text(`Fecha: ${insc.fechaCompletado.toLocaleDateString()}`, { align: 'center' });
+
+        doc.end();
+
+        // esperar a que el stream termine
+        await new Promise((resolve, reject) => {
+          stream.on('finish', resolve);
+          stream.on('error', reject);
+        });
+
+        insc.certificadoUrl = `/certificates/${filename}`;
+      } catch (genErr) {
+        console.error('Error generando certificado:', genErr);
+      }
     }
     await insc.save();
     res.json(insc);
